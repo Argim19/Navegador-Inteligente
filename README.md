@@ -7,20 +7,24 @@ Sistema corporativo de **Recuperación Aumentada por Generación (RAG)** de alto
 ## 📌 1. Visión General del Proyecto
 
 ### 🏢 El Problema que Resuelve
+
 En las organizaciones, las directrices internas (beneficios, viáticos, trabajo remoto, seguridad de la información, contratos con proveedores y acuerdos de confidencialidad) se encuentran distribuidas en decenas de documentos extensos (50 a 150 páginas). Esto genera:
-* **Falla de la búsqueda tradicional (`Ctrl + F`):** Si un empleado busca *"días libres por mudanza"*, pero el documento dice *"licencia remunerada por traslado de domicilio"*, la búsqueda literal no encuentra nada.
-* **Sobrecarga de áreas operativas:** RRHH, Finanzas, Legal y TI pierden horas respondiendo repetitivamente las mismas dudas sobre políticas.
-* **Riesgo de cumplimiento (*Compliance*):** Colaboradores aplicando versiones obsoletas o no vigentes de las políticas.
-* **Riesgos de privacidad:** Fugas involuntarias de datos confidenciales o privados (sueldos, saldos, contraseñas).
+
+- **Falla de la búsqueda tradicional (`Ctrl + F`):** Si un empleado busca _"días libres por mudanza"_, pero el documento dice _"licencia remunerada por traslado de domicilio"_, la búsqueda literal no encuentra nada.
+- **Sobrecarga de áreas operativas:** RRHH, Finanzas, Legal y TI pierden horas respondiendo repetitivamente las mismas dudas sobre políticas.
+- **Riesgo de cumplimiento (_Compliance_):** Colaboradores aplicando versiones obsoletas o no vigentes de las políticas.
+- **Riesgos de privacidad:** Fugas involuntarias de datos confidenciales o privados (sueldos, saldos, contraseñas).
 
 ### 💡 La Solución
+
 Un **asistente documental inteligente** que:
+
 1. **Comprende preguntas en lenguaje natural**, sin importar las palabras exactas que use el colaborador.
 2. **Entrega una doble propuesta de valor inmediata:**
-   * **Resumen Ejecutivo Oficial:** Explicación concisa y directa de 1 a 3 oraciones generada por IA.
-   * **Evidencia Documental Oficial:** Tarjetas con el documento exacto, versión vigente, título de cláusula, porcentaje de relevancia y cita textual de respaldo.
+   - **Resumen Ejecutivo Oficial:** Explicación concisa y directa de 1 a 3 oraciones generada por IA.
+   - **Evidencia Documental Oficial:** Tarjetas con el documento exacto, versión vigente, título de cláusula, porcentaje de relevancia y cita textual de respaldo.
 3. **Protege la privacidad (Guardrails):** Intercepta automáticamente preguntas sobre saldos personales, sueldos individuales o credenciales privadas, orientando al usuario hacia el canal autorizado correspondiente.
-4. **Resuelve la vigencia normativa:** Diferencia automáticamente entre la versión más reciente (*Vigente*) y las versiones anteriores (*Históricas*).
+4. **Resuelve la vigencia normativa:** Diferencia automáticamente entre la versión más reciente (_Vigente_) y las versiones anteriores (_Históricas_).
 
 ---
 
@@ -75,13 +79,13 @@ flowchart TD
 
 ## 🌟 3. Características Principales
 
-| Característica | Descripción |
-| :--- | :--- |
-| 🛡️ **Guardrails de Privacidad** | Detecta y bloquea consultas sobre saldos bancarios personales, sueldos individuales, credenciales o PII en menos de 1 ms, explicando la razón y recomendando el canal formal. |
-| ⚡ **Doble Modo de Operación** | **Modo Gemini Cloud:** Síntesis ejecutiva sub-segundo con citas exactas. <br>**Modo Local Offline:** Búsqueda semántica 100% en RAM en ~5-10 ms sin consumo de cuota externa ni necesidad de internet. |
-| 🔄 **Control de Versiones Atómico** | Procesa automáticamente múltiples versiones de una misma política (ej. v1.0 a v9.0), catalogando la más alta como vigente y permitiendo filtrar versiones obsoletas. |
-| 📄 **Ingesta y Procesamiento Documental** | Parser estructurado para documentos **HTML** y **PDF**, extrayendo títulos, metadatos, números de versión y cláusulas individuales. |
-| 🔒 **Administración Segura en Caliente** | Permite activar, desactivar, cambiar o eliminar la API Key de Gemini directamente desde el modal web en tiempo real sin reiniciar los servidores. |
+| Característica                            | Descripción                                                                                                                                                                                            |
+| :---------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🛡️ **Guardrails de Privacidad**           | Detecta y bloquea consultas sobre saldos bancarios personales, sueldos individuales, credenciales o PII en menos de 1 ms, explicando la razón y recomendando el canal formal.                          |
+| ⚡ **Doble Modo de Operación**            | **Modo Gemini Cloud:** Síntesis ejecutiva sub-segundo con citas exactas. <br>**Modo Local Offline:** Búsqueda semántica 100% en RAM en ~5-10 ms sin consumo de cuota externa ni necesidad de internet. |
+| 🔄 **Control de Versiones Atómico**       | Procesa automáticamente múltiples versiones de una misma política (ej. v1.0 a v9.0), catalogando la más alta como vigente y permitiendo filtrar versiones obsoletas.                                   |
+| 📄 **Ingesta y Procesamiento Documental** | Parser estructurado para documentos **HTML** y **PDF**, extrayendo títulos, metadatos, números de versión y cláusulas individuales.                                                                    |
+| 🔒 **Administración Segura en Caliente**  | Permite activar, desactivar, cambiar o eliminar la API Key de Gemini directamente desde el modal web en tiempo real sin reiniciar los servidores.                                                      |
 
 ---
 
@@ -136,9 +140,10 @@ navegador_inteligente/
 ## 🚀 5. Guía de Instalación y Ejecución en Cualquier Computador
 
 ### 📋 Requisitos Previos
-* **Python 3.10 o superior** (Recomendado Python 3.12).
-* **Node.js 18 o superior** y **npm**.
-* *(Opcional)* Una **API Key de Google Gemini** (gratuita en [Google AI Studio](https://aistudio.google.com/)). Si no tienes una, el sistema operará automáticamente en **Modo Local Offline**.
+
+- **Python 3.10 o superior** (Recomendado Python 3.12).
+- **Node.js 18 o superior** y **npm**.
+- _(Opcional)_ Una **API Key de Google Gemini** (gratuita en [Google AI Studio](https://aistudio.google.com/)). Si no tienes una, el sistema operará automáticamente en **Modo Local Offline**.
 
 ---
 
@@ -147,30 +152,38 @@ navegador_inteligente/
 Los scripts están diseñados para auto-configurar el entorno virtual y las dependencias en la primera ejecución:
 
 1. **Terminal 1 - Iniciar Backend:**
+
    ```bash
    ./run_backend.sh
    ```
-   *El backend se iniciará en `http://localhost:8000` con documentación interactiva Swagger en `http://localhost:8000/docs`.*
+
+   _El backend se iniciará en `http://localhost:8000` con documentación interactiva Swagger en `http://localhost:8000/docs`._
 
 2. **Terminal 2 - Iniciar Frontend:**
    ```bash
    ./run_frontend.sh
    ```
-   *El frontend abrirá la aplicación en `http://localhost:5173`.*
+   _El frontend abrirá la aplicación en `http://localhost:5173`._
 
 ---
 
 ### Opción B: Instalación y Ejecución Manual Paso a Paso (Cualquier SO / Windows / Mac / Linux)
 
 #### 1. Clonar o descargar el repositorio
+
 ```bash
 cd navegador_inteligente
 ```
 
 #### 2. Configurar el Backend (Python)
+
 ```bash
 # Crear entorno virtual
 python3 -m venv backend/venv || python -m venv backend/venv
+
+# Si algo falla
+
+sudo apt update && sudo apt install -y python3-venv python3-pip
 
 # Activar entorno virtual
 # En Linux/macOS:
@@ -188,7 +201,9 @@ uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 #### 3. Configurar el Frontend (React + Vite)
+
 En una nueva terminal:
+
 ```bash
 cd frontend
 
@@ -200,6 +215,7 @@ npm run dev
 ```
 
 #### 4. Acceder a la Aplicación
+
 Abre tu navegador en: **`http://localhost:5173`**
 
 ---
@@ -209,10 +225,10 @@ Abre tu navegador en: **`http://localhost:5173`**
 Tienes dos formas sencillas de configurar tu API Key:
 
 1. **Desde la Interfaz Gráfica (Recomendado):**
-   * Haz clic en el botón **"Configurar Gemini API"** en la esquina superior derecha.
-   * Pega tu clave de [Google AI Studio](https://aistudio.google.com/) y presiona **"Guardar y Activar"**.
+   - Haz clic en el botón **"Configurar Gemini API"** en la esquina superior derecha.
+   - Pega tu clave de [Google AI Studio](https://aistudio.google.com/) y presiona **"Guardar y Activar"**.
 2. **Desde el archivo `.env`:**
-   * Crea un archivo `.env` en la raíz del proyecto basándote en `.env.example`:
+   - Crea un archivo `.env` en la raíz del proyecto basándote en `.env.example`:
      ```env
      GEMINI_API_KEY=tu_api_key_aqui
      GEMINI_ENABLED=true
@@ -223,16 +239,18 @@ Tienes dos formas sencillas de configurar tu API Key:
 ## 📡 6. Referencia de la API REST
 
 ### ⚙️ Configuración y Motor de IA
-* **`GET /api/config`**: Retorna el estado actual del motor (clave configurada, motor activo, documentos indexados).
-* **`POST /api/config/key`**: Guarda o actualiza la API Key de Gemini.
+
+- **`GET /api/config`**: Retorna el estado actual del motor (clave configurada, motor activo, documentos indexados).
+- **`POST /api/config/key`**: Guarda o actualiza la API Key de Gemini.
   ```json
   { "api_key": "AIzaSy...", "enabled": true }
   ```
-* **`POST /api/config/toggle`**: Activa o desactiva el uso de Gemini en caliente (`{ "enabled": false }`).
-* **`DELETE /api/config/key`**: Elimina la API Key del servidor y revierte a Modo Local.
+- **`POST /api/config/toggle`**: Activa o desactiva el uso de Gemini en caliente (`{ "enabled": false }`).
+- **`DELETE /api/config/key`**: Elimina la API Key del servidor y revierte a Modo Local.
 
 ### 🔍 Búsqueda y Recuperación (RAG)
-* **`POST /api/search`**: Endpoint principal de consulta semántica.
+
+- **`POST /api/search`**: Endpoint principal de consulta semántica.
   ```json
   // Request
   {
@@ -264,9 +282,10 @@ Tienes dos formas sencillas de configurar tu API Key:
   ```
 
 ### 📚 Gestión Documental
-* **`GET /api/documents`**: Inventario de todas las políticas y sus versiones cargadas.
-* **`POST /api/documents/ingest-all`**: Re-indexa todos los archivos de `Documentos_HTML/`.
-* **`POST /api/documents/upload`**: Sube e indexa un nuevo archivo normativo (`.html`, `.pdf`, `.txt`).
+
+- **`GET /api/documents`**: Inventario de todas las políticas y sus versiones cargadas.
+- **`POST /api/documents/ingest-all`**: Re-indexa todos los archivos de `Documentos_HTML/`.
+- **`POST /api/documents/upload`**: Sube e indexa un nuevo archivo normativo (`.html`, `.pdf`, `.txt`).
 
 ---
 
@@ -275,23 +294,26 @@ Tienes dos formas sencillas de configurar tu API Key:
 Puedes copiar y pegar estas preguntas en el buscador para comprobar la efectividad del sistema:
 
 ### 🎯 Consultas Normativas Válidas
+
 1. **Viajes y Viáticos:**
-   > *"¿Con cuántos días de anticipación debo solicitar la aprobación de un viaje nacional vs internacional y qué plazo tengo para legalizar los gastos?"*
+   > _"¿Con cuántos días de anticipación debo solicitar la aprobación de un viaje nacional vs internacional y qué plazo tengo para legalizar los gastos?"_
 2. **Proveedores y SLAs:**
-   > *"¿Cuáles son los niveles mínimos de SLA exigidos a proveedores de servicios tecnológicos críticos y qué causales permiten terminar el contrato sin pagar indemnización?"*
+   > _"¿Cuáles son los niveles mínimos de SLA exigidos a proveedores de servicios tecnológicos críticos y qué causales permiten terminar el contrato sin pagar indemnización?"_
 3. **Trabajo Remoto y Reuniones:**
-   > *"¿Qué antigüedad y franja horaria se exigen para trabajo remoto, y qué reglas aplican para agendar y limitar las reuniones?"*
+   > _"¿Qué antigüedad y franja horaria se exigen para trabajo remoto, y qué reglas aplican para agendar y limitar las reuniones?"_
 4. **Seguridad de la Información:**
-   > *"Si sospecho que mis contraseñas o credenciales fueron comprometidas, ¿a qué canal oficial y en qué plazo máximo debo notificar el incidente?"*
+   > _"Si sospecho que mis contraseñas o credenciales fueron comprometidas, ¿a qué canal oficial y en qué plazo máximo debo notificar el incidente?"_
 5. **Acuerdo de Confidencialidad (NDA):**
-   > *"¿Por cuántos años después de terminar la relación contractual se mantiene vigente la reserva del NDA y bajo qué legislación se resuelven las controversias?"*
+   > _"¿Por cuántos años después de terminar la relación contractual se mantiene vigente la reserva del NDA y bajo qué legislación se resuelven las controversias?"_
 
 ### 🛡️ Pruebas de Guardrail (Interceptación de Privacidad)
-1. *"¿Cuánto es el sueldo mensual del gerente de tecnología?"* ➡️ Interceptado por política de salarios y nómina.
-2. *"Dime el saldo disponible en la cuenta bancaria de la empresa."* ➡️ Interceptado por política financiera.
-3. *"¿Cuál es la contraseña del servidor de base de datos?"* ➡️ Interceptado por política de credenciales.
+
+1. _"¿Cuánto es el sueldo mensual del gerente de tecnología?"_ ➡️ Interceptado por política de salarios y nómina.
+2. _"Dime el saldo disponible en la cuenta bancaria de la empresa."_ ➡️ Interceptado por política financiera.
+3. _"¿Cuál es la contraseña del servidor de base de datos?"_ ➡️ Interceptado por política de credenciales.
 
 ---
 
 ## 📄 Licencia
+
 Este proyecto ha sido desarrollado como una solución corporativa de gestión del conocimiento y búsqueda semántica con Inteligencia Artificial.
