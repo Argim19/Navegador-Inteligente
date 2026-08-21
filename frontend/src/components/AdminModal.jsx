@@ -1,36 +1,39 @@
 import React, { useState } from "react";
-import { Settings, X, RefreshCw, Upload, ShieldCheck } from "lucide-react";
+import { Settings, X, RefreshCw, Upload, FileText, CheckCircle, Clock } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { reindexAllDocuments, uploadDocument } from "../api/client";
 
 /**
- * Modal de Administración y Control Documental (Carga, Re-indexación y Catálogo).
+ * Modal de Administración y Control Documental con animaciones suaves de entrada y salida.
  */
 export default function AdminModal({
   isOpen,
   onClose,
   configStatus,
-  documentsList,
+  documentsList = [],
   onRefresh,
 }) {
   const [adminLoading, setAdminLoading] = useState(false);
-  const [adminFeedback, setAdminFeedback] = useState("");
+  const [adminFeedback, setAdminFeedback] = useState(null);
   const [uploadFile, setUploadFile] = useState(null);
   const [uploadScope, setUploadScope] = useState("General");
   const [uploadVersion, setUploadVersion] = useState("1.0");
 
-  if (!isOpen) return null;
-
   const handleReindex = async () => {
     setAdminLoading(true);
-    setAdminFeedback("");
+    setAdminFeedback(null);
     try {
       const data = await reindexAllDocuments();
-      setAdminFeedback(
-        `¡Éxito! ${data.total_chunks} cláusulas indexadas a partir de ${data.total_files} documentos.`
-      );
+      setAdminFeedback({
+        type: "success",
+        message: `¡Éxito! Se indexaron ${data.total_chunks} cláusulas a partir de ${data.total_files} documentos.`,
+      });
       await onRefresh();
     } catch (err) {
-      setAdminFeedback(`Error al indexar: ${err.message}`);
+      setAdminFeedback({
+        type: "error",
+        message: `Error al indexar: ${err.message}`,
+      });
     } finally {
       setAdminLoading(false);
     }
@@ -40,7 +43,7 @@ export default function AdminModal({
     e.preventDefault();
     if (!uploadFile) return;
     setAdminLoading(true);
-    setAdminFeedback("");
+    setAdminFeedback(null);
 
     const formData = new FormData();
     formData.append("file", uploadFile);
@@ -49,185 +52,251 @@ export default function AdminModal({
 
     try {
       const data = await uploadDocument(formData);
-      setAdminFeedback(`Documento indexado: ${data.message}`);
+      setAdminFeedback({
+        type: "success",
+        message: `Documento indexado con éxito: ${data.message || "Procesado correctamente."}`,
+      });
       setUploadFile(null);
       await onRefresh();
     } catch (err) {
-      setAdminFeedback(`Error al subir: ${err.message}`);
+      setAdminFeedback({
+        type: "error",
+        message: `Error al subir documento: ${err.message}`,
+      });
     } finally {
       setAdminLoading(false);
     }
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        {/* Header del Modal */}
-        <div className="modal-header">
-          <div className="modal-title">
-            <Settings size={20} color="var(--brand-primary)" />
-            Panel de Administración y Gestión Documental
-          </div>
-          <button className="btn btn-secondary btn-sm" onClick={onClose}>
-            <X size={16} />
-          </button>
-        </div>
-
-        <div className="modal-body">
-          {/* Tarjetas de Estadísticas */}
-          <div className="stats-grid">
-            <div className="stat-box">
-              <div className="stat-number">{configStatus.total_documents}</div>
-              <div className="stat-title">Documentos Cargados</div>
-            </div>
-            <div className="stat-box">
-              <div className="stat-number">{configStatus.total_indexed_chunks}</div>
-              <div className="stat-title">Cláusulas Indexadas</div>
-            </div>
-            <div className="stat-box">
-              <div className="stat-number" style={{ color: "#059669" }}>Universal</div>
-              <div className="stat-title">Acceso Abierto a Políticas</div>
-            </div>
-          </div>
-
-          {/* Acciones Globales */}
-          <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-            <button
-              className="btn btn-secondary"
-              onClick={handleReindex}
-              disabled={adminLoading}
-            >
-              <RefreshCw size={15} className={adminLoading ? "spinner" : ""} />
-              {adminLoading ? "Procesando indexación..." : "Re-indexar Documentos_HTML (50 políticas)"}
-            </button>
-          </div>
-
-          {adminFeedback && (
-            <div
-              style={{
-                padding: "0.75rem",
-                borderRadius: "8px",
-                background: "#e0f2fe",
-                color: "#0369a1",
-                fontSize: "0.85rem",
-              }}
-            >
-              {adminFeedback}
-            </div>
-          )}
-
-          {/* Formulario de Carga de Documentos */}
-          <form
-            onSubmit={handleUpload}
-            style={{
-              border: "1px solid var(--border-color)",
-              padding: "1rem",
-              borderRadius: "8px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.75rem",
-            }}
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="modal-overlay"
+          onClick={onClose}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <motion.div
+            className="modal-content admin-modal-content"
+            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0, scale: 0.94, y: 18 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 18 }}
+            transition={{ type: "spring", stiffness: 400, damping: 28 }}
           >
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: "0.9rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.4rem",
-              }}
-            >
-              <Upload size={16} /> Subir y Versionar Nuevo Documento (HTML / PDF / TXT)
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-              <div className="form-group">
-                <label className="form-label">Categorías / Scopes (Separados por coma):</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Ej. TI, Cloud, General"
-                  value={uploadScope}
-                  onChange={(e) => setUploadScope(e.target.value)}
-                />
+            {/* Header del Modal */}
+            <div className="modal-header">
+              <div className="modal-title">
+                <div className="modal-title-icon-box">
+                  <Settings size={20} />
+                </div>
+                <div>
+                  <h3>Panel de Administración Documental</h3>
+                  <p className="modal-title-sub">Gestión del corpus normativo, ingestión y versionamiento</p>
+                </div>
               </div>
-              <div className="form-group">
-                <label className="form-label">Versión:</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Ej. 10.0"
-                  value={uploadVersion}
-                  onChange={(e) => setUploadVersion(e.target.value)}
-                />
+              <motion.button
+                className="btn-close-icon"
+                onClick={onClose}
+                aria-label="Cerrar modal"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <X size={18} />
+              </motion.button>
+            </div>
+
+            <div className="modal-body">
+              {/* Tarjetas de Estadísticas */}
+              <div className="stats-grid">
+                <div className="stat-box">
+                  <div className="stat-number">{configStatus.total_documents || documentsList.length || 0}</div>
+                  <div className="stat-title">Documentos Registrados</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-number stat-highlight">{configStatus.total_indexed_chunks || 0}</div>
+                  <div className="stat-title">Cláusulas Indexadas</div>
+                </div>
+                <div className="stat-box stat-box-accent">
+                  <div className="stat-number text-emerald">Universal</div>
+                  <div className="stat-title">Acceso a Políticas</div>
+                </div>
+              </div>
+
+              {/* Acciones Globales */}
+              <div className="admin-actions-bar">
+                <motion.button
+                  type="button"
+                  className="btn btn-secondary reindex-btn"
+                  onClick={handleReindex}
+                  disabled={adminLoading}
+                  whileHover={!adminLoading ? { scale: 1.01 } : {}}
+                  whileTap={!adminLoading ? { scale: 0.98 } : {}}
+                >
+                  <RefreshCw size={16} className={adminLoading ? "spinner" : ""} />
+                  <span>{adminLoading ? "Procesando indexación..." : "Re-indexar Documentos_HTML (50 políticas)"}</span>
+                </motion.button>
+              </div>
+
+              <AnimatePresence>
+                {adminFeedback && (
+                  <motion.div
+                    className={`alert-banner ${adminFeedback.type === "error" ? "alert-banner-error" : "alert-banner-success"}`}
+                    initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {adminFeedback.type === "error" ? (
+                      <X size={16} className="alert-icon" />
+                    ) : (
+                      <CheckCircle size={16} className="alert-icon" />
+                    )}
+                    <span>{adminFeedback.message}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Formulario de Carga de Documentos */}
+              <form onSubmit={handleUpload} className="upload-form-box">
+                <div className="upload-form-header">
+                  <Upload size={17} className="upload-header-icon" />
+                  <h4>Subir y Versionar Nuevo Documento (HTML / PDF / TXT)</h4>
+                </div>
+
+                <div className="upload-form-grid">
+                  <div className="form-group">
+                    <label className="form-label">Categorías / Scopes (Separados por coma):</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Ej. TI, Cloud, General, Finanzas"
+                      value={uploadScope}
+                      onChange={(e) => setUploadScope(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Versión del Documento:</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Ej. 1.0, 2.0"
+                      value={uploadVersion}
+                      onChange={(e) => setUploadVersion(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Seleccionar archivo normativo:</label>
+                  <div className="file-input-wrapper">
+                    <input
+                      type="file"
+                      accept=".html,.htm,.pdf,.txt"
+                      className="file-input-control"
+                      onChange={(e) => setUploadFile(e.target.files[0])}
+                    />
+                  </div>
+                </div>
+
+                <div className="upload-form-actions">
+                  <motion.button
+                    type="submit"
+                    className="btn btn-primary btn-sm"
+                    disabled={!uploadFile || adminLoading}
+                    whileHover={uploadFile && !adminLoading ? { scale: 1.04 } : {}}
+                    whileTap={uploadFile && !adminLoading ? { scale: 0.96 } : {}}
+                  >
+                    <Upload size={14} />
+                    <span>{adminLoading ? "Indexando..." : "Indexar Documento"}</span>
+                  </motion.button>
+                </div>
+              </form>
+
+              {/* Tabla de Documentos Indexados */}
+              <div className="inventory-section">
+                <div className="inventory-header">
+                  <FileText size={16} />
+                  <label className="form-label">Inventario de Políticas y Versiones Indexadas ({documentsList.length}):</label>
+                </div>
+
+                <div className="docs-table-wrapper">
+                  <table className="docs-table">
+                    <thead>
+                      <tr>
+                        <th>Título del Documento</th>
+                        <th>Versión</th>
+                        <th>Cláusulas</th>
+                        <th>Categorías</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {documentsList.length === 0 ? (
+                        <tr>
+                          <td colSpan="5" className="table-empty-cell">
+                            No hay documentos cargados en el inventario.
+                          </td>
+                        </tr>
+                      ) : (
+                        documentsList.map((doc, idx) => (
+                          <tr key={doc.doc_id || idx}>
+                            <td className="doc-title-cell">{doc.doc_title}</td>
+                            <td>
+                              <span className="badge-version">v{doc.version}</span>
+                            </td>
+                            <td className="text-center">{doc.total_clauses}</td>
+                            <td>
+                              <div className="scope-tags-container">
+                                {doc.scopes && doc.scopes.map((s, i) => (
+                                  <span key={i} className="scope-tag">
+                                    {s}
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                            <td>
+                              <span className={`meta-pill ${doc.is_active ? "verified" : "historical-pill"}`}>
+                                {doc.is_active ? (
+                                  <>
+                                    <CheckCircle size={11} />
+                                    <span>Vigente</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Clock size={11} />
+                                    <span>Histórica</span>
+                                  </>
+                                )}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Seleccionar archivo (HTML / PDF / TXT):</label>
-              <input
-                type="file"
-                accept=".html,.htm,.pdf,.txt"
-                onChange={(e) => setUploadFile(e.target.files[0])}
-              />
+            <div className="modal-footer">
+              <motion.button
+                type="button"
+                className="btn btn-secondary"
+                onClick={onClose}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                Cerrar Panel
+              </motion.button>
             </div>
-
-            <button
-              type="submit"
-              className="btn btn-primary btn-sm"
-              style={{ alignSelf: "flex-start" }}
-              disabled={!uploadFile || adminLoading}
-            >
-              Indexar Documento
-            </button>
-          </form>
-
-          {/* Tabla de Documentos Indexados */}
-          <div className="form-group">
-            <label className="form-label">Inventario de Políticas y Versiones Indexadas:</label>
-            <div className="docs-table-wrapper">
-              <table className="docs-table">
-                <thead>
-                  <tr>
-                    <th>Título</th>
-                    <th>Versión</th>
-                    <th>Cláusulas</th>
-                    <th>Categorías</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {documentsList.map((doc) => (
-                    <tr key={doc.doc_id}>
-                      <td style={{ fontWeight: 600 }}>{doc.doc_title}</td>
-                      <td>v{doc.version}</td>
-                      <td>{doc.total_clauses}</td>
-                      <td>
-                        {doc.scopes.map((s, i) => (
-                          <span key={i} className="scope-tag" style={{ marginRight: "3px" }}>
-                            {s}
-                          </span>
-                        ))}
-                      </td>
-                      <td>
-                        <span className={`meta-pill ${doc.is_active ? "verified" : ""}`}>
-                          {doc.is_active ? "Vigente" : "Histórica"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={onClose}>
-            Cerrar
-          </button>
-        </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

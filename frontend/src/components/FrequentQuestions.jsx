@@ -1,5 +1,6 @@
 import React from "react";
-import { ChevronRight, HelpCircle } from "lucide-react";
+import { HelpCircle, ChevronRight } from "lucide-react";
+import { motion } from "motion/react";
 
 const FREQUENT_PROMPTS = [
   {
@@ -7,58 +8,61 @@ const FREQUENT_PROMPTS = [
     text: "¿Cuántos días de permiso tengo por mudanza o traslado?",
   },
   {
-    category: "Viáticos & Finanzas",
-    text: "¿Cuál es el plazo para legalizar anticipos y comprobantes de viaje?",
+    category: "Finanzas & Gastos",
+    text: "¿Cuál es el plazo máximo para legalizar viáticos y gastos de viaje?",
   },
   {
     category: "Trabajo Remoto",
-    text: "¿Cuáles son los requisitos de conectividad y horarios para teletrabajo?",
+    text: "¿Qué subsidio de conectividad y horarios aplican para modalidad híbrida?",
   },
   {
     category: "Ciberseguridad & TI",
-    text: "¿Cuáles son las reglas de cambio y longitud para contraseñas?",
+    text: "¿Cuáles son las políticas de almacenamiento y acceso seguro en Cloud?",
   },
   {
     category: "Legal & Contratos",
-    text: "¿Cuál es la vigencia y penalidad de los acuerdos de confidencialidad?",
-  },
-  {
-    category: "Prueba de Privacidad",
-    text: "¿Cuál es el saldo actual de mi cuenta bancaria?",
+    text: "¿Cuál es la vigencia de las obligaciones de confidencialidad del NDA?",
   },
 ];
 
 /**
- * Muestra sugerencias de preguntas frecuentes para facilitar la exploración cross-área.
+ * Muestra sugerencias de preguntas frecuentes en formato de chips píldora horizontales con micro-interacciones.
  */
 export default function FrequentQuestions({ onSelectPrompt }) {
   return (
-    <div className="suggestions-container">
-      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.6rem" }}>
-        <HelpCircle size={15} color="var(--brand-primary)" />
-        <span className="suggestions-label" style={{ margin: 0 }}>
+    <motion.div
+      className="suggestions-container"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay: 0.15 }}
+    >
+      <div className="suggestions-header">
+        <HelpCircle size={15} className="suggestions-icon" />
+        <span className="suggestions-label">
           Preguntas frecuentes y ejemplos de consulta:
         </span>
       </div>
 
       <div className="chips-grid">
         {FREQUENT_PROMPTS.map((item, idx) => (
-          <button
+          <motion.button
             key={idx}
+            type="button"
             className="chip-btn"
             onClick={() => onSelectPrompt(item.text)}
             title={`Categoría: ${item.category}`}
+            whileHover={{ scale: 1.025, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
-            <ChevronRight size={13} />
+            <ChevronRight size={13} className="chip-chevron" />
             <span>
-              <strong style={{ color: "var(--brand-primary)", marginRight: "4px" }}>
-                [{item.category}]
-              </strong>
+              <strong className="chip-category-text">[{item.category}]</strong>{" "}
               {item.text}
             </span>
-          </button>
+          </motion.button>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }

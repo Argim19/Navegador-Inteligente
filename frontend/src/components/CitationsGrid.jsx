@@ -1,90 +1,114 @@
 import React from "react";
-import { FileText, BookOpen } from "lucide-react";
+import { FileText, BookOpen, Bookmark, FileCode } from "lucide-react";
+import { motion } from "motion/react";
 
 /**
- * Cuadrícula de evidencia oficial y citas textuales de respaldo documental.
+ * Cuadrícula de evidencia oficial y citas textuales con aparición escalonada (stagger effect).
  */
-export default function CitationsGrid({ citations }) {
+export default function CitationsGrid({ citations = [] }) {
   return (
-    <div className="evidence-section">
+    <motion.div
+      className="evidence-section"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4, delay: 0.1 }}
+    >
       <div className="evidence-header">
         <div className="evidence-title">
-          <FileText size={18} />
-          Evidencia Oficial y Citas de Respaldo ({citations.length})
+          <div className="evidence-title-icon-box">
+            <FileText size={18} />
+          </div>
+          <div>
+            <h3>Evidencia Oficial y Citas de Respaldo ({citations.length})</h3>
+            <p className="evidence-subtitle">
+              Trazabilidad verificable con documento, versión, cláusula y extracto original
+            </p>
+          </div>
         </div>
-        <span className="text-muted" style={{ fontSize: "0.8rem" }}>
-          Trazabilidad verificable con documento, versión y cláusula original
-        </span>
       </div>
 
       {citations.length === 0 ? (
-        <div
-          style={{
-            background: "var(--bg-surface)",
-            padding: "1.5rem",
-            borderRadius: "10px",
-            border: "1px solid var(--border-color)",
-            textAlign: "center",
-            color: "var(--text-muted)",
-          }}
+        <motion.div
+          className="empty-citations-card"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
         >
-          No se encontraron fragmentos normativos relevantes para los términos ingresados.
-        </div>
+          <FileText size={32} className="empty-citations-icon" />
+          <p className="empty-citations-title">No se encontraron fragmentos normativos coincidentes</p>
+          <span className="empty-citations-hint">
+            Intenta replantear tu consulta con otros términos o verificar que la casilla de solo vigentes contenga los documentos buscados.
+          </span>
+        </motion.div>
       ) : (
         <div className="citations-grid">
-          {citations.map((c, idx) => (
-            <div key={idx} className="citation-card">
-              <div className="citation-card-header">
-                <div className="citation-doc-info">
-                  <div className="citation-doc-title">
-                    <BookOpen size={15} color="var(--brand-primary)" />
-                    {c.doc_title}
+          {citations.map((c, idx) => {
+            const relevancePercent = Math.round((c.relevance_score || 0) * 100);
+            const isTopMatch = idx === 0;
+
+            return (
+              <motion.div
+                key={idx}
+                className={`citation-card ${isTopMatch ? "top-match-card" : ""}`}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.35,
+                  delay: 0.15 + idx * 0.08,
+                  ease: "easeOut",
+                }}
+                whileHover={{ y: -2 }}
+              >
+                <div className="citation-card-header">
+                  <div className="citation-doc-info">
+                    <div className="citation-doc-title">
+                      <BookOpen size={16} className="citation-doc-icon" />
+                      <span>{c.doc_title}</span>
+                    </div>
+                    <div className="citation-clause-title">
+                      <Bookmark size={13} className="citation-clause-icon" />
+                      <span>{c.clause_title}</span>
+                      {c.page_or_section && (
+                        <span className="citation-section-badge">{c.page_or_section}</span>
+                      )}
+                    </div>
                   </div>
-                  <div className="citation-clause-title">
-                    📌 {c.clause_title} {c.page_or_section ? `(${c.page_or_section})` : ""}
-                  </div>
-                </div>
 
-                <div className="citation-badges">
-                  <span
-                    className="badge-match"
-                    style={{
-                      background:
-                        idx === 0
-                          ? "rgba(2, 132, 199, 0.12)"
-                          : "rgba(100, 116, 139, 0.12)",
-                      color: idx === 0 ? "#0284c7" : "#475569",
-                      borderColor: idx === 0 ? "#bae6fd" : "#cbd5e1",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {idx === 0 ? "⭐ Mayor Coincidencia" : "📑 Coincidencia Similar"}
-                  </span>
-                  <span className="badge-version">v{c.version}</span>
-                  <span className="badge-match">
-                    {Math.round(c.relevance_score * 100)}% Relevancia
-                  </span>
-                </div>
-              </div>
-
-              <blockquote className="citation-quote">"{c.quote}"</blockquote>
-
-              <div className="citation-footer">
-                <div className="citation-scopes">
-                  {c.scopes.map((s, sIdx) => (
-                    <span key={sIdx} className="scope-tag">
-                      {s}
+                  <div className="citation-badges">
+                    <span className={`badge-match-rank ${isTopMatch ? "rank-top" : "rank-similar"}`}>
+                      {isTopMatch ? "⭐ Mayor Coincidencia" : "📑 Coincidencia Similar"}
                     </span>
-                  ))}
+                    <span className="badge-version">v{c.version}</span>
+                    <span className="badge-relevance">
+                      <span className="relevance-dot"></span>
+                      {relevancePercent}% Relevancia
+                    </span>
+                  </div>
                 </div>
-                <span>
-                  Archivo: <code>{c.file_name}</code>
-                </span>
-              </div>
-            </div>
-          ))}
+
+                <blockquote className="citation-quote">
+                  <span className="quote-mark">“</span>
+                  {c.quote}
+                  <span className="quote-mark">”</span>
+                </blockquote>
+
+                <div className="citation-footer">
+                  <div className="citation-scopes">
+                    {c.scopes && c.scopes.map((s, sIdx) => (
+                      <span key={sIdx} className="scope-tag">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="citation-file-info" title={c.file_name}>
+                    <FileCode size={13} className="file-info-icon" />
+                    <code className="file-name-code">{c.file_name}</code>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

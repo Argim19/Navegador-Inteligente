@@ -1,114 +1,80 @@
 import React from "react";
-import { ShieldAlert, ArrowRight, Info, ExternalLink } from "lucide-react";
+import { ShieldAlert, Info, Lock } from "lucide-react";
+import { motion } from "motion/react";
 
 /**
- * Notificación visual elegante cuando una consulta sobre saldos, sueldos o PII es interceptada.
+ * Notificación visual elegante cuando una consulta sobre saldos, sueldos individuales o PII es interceptada.
  */
 export default function GuardrailNotice({ notice, latency }) {
   if (!notice) return null;
 
   return (
-    <div
+    <motion.div
       className="guardrail-card"
-      style={{
-        background: "#fff",
-        border: "1px solid #fecaca",
-        borderRadius: "14px",
-        padding: "1.75rem",
-        boxShadow: "0 10px 15px -3px rgba(239, 68, 68, 0.08)",
-        marginBottom: "2rem",
-      }}
+      initial={{ opacity: 0, scale: 0.96, y: 15 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 350, damping: 25 }}
     >
       {/* Encabezado del Guardrail */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          paddingBottom: "1rem",
-          borderBottom: "1px solid #fee2e2",
-          marginBottom: "1.25rem",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "10px",
-              background: "#fee2e2",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#dc2626",
-            }}
+      <div className="guardrail-header">
+        <div className="guardrail-header-left">
+          <motion.div
+            className="guardrail-icon-box"
+            initial={{ rotate: -10 }}
+            animate={{ rotate: [0, -6, 6, 0] }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <ShieldAlert size={22} />
-          </div>
+            <ShieldAlert size={24} />
+          </motion.div>
           <div>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#991b1b" }}>
+            <h3 className="guardrail-title">
               {notice.title || "Consulta Interceptada por Política de Seguridad"}
             </h3>
-            <p style={{ fontSize: "0.8rem", color: "#b91c1c" }}>
-              Control de Privacidad y Protección de Datos Sensibles
+            <p className="guardrail-subtitle">
+              Control Institucional de Privacidad y Protección de Datos Sensibles (PII)
             </p>
           </div>
         </div>
 
-        <span
-          className="meta-pill"
-          style={{ background: "#fef2f2", color: "#991b1b", borderColor: "#fecaca" }}
-        >
-          {latency} ms
-        </span>
-      </div>
-
-      {/* Cuerpo del Mensaje */}
-      <div style={{ color: "#374151", fontSize: "0.95rem", lineHeight: "1.6", marginBottom: "1.25rem" }}>
-        <p style={{ marginBottom: "0.75rem" }}>{notice.message}</p>
-
-        <div
-          style={{
-            background: "#f8fafc",
-            border: "1px solid #e2e8f0",
-            borderRadius: "10px",
-            padding: "1rem",
-            marginTop: "1rem",
-          }}
-        >
-          <div
-            style={{
-              fontWeight: 700,
-              fontSize: "0.85rem",
-              color: "var(--brand-primary)",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              marginBottom: "0.35rem",
-            }}
-          >
-            <Info size={16} /> Canal Oficial Recomendado:
-          </div>
-          <p style={{ fontSize: "0.88rem", color: "#475569" }}>{notice.suggestion}</p>
+        <div className="guardrail-meta">
+          <span className="meta-pill guardrail-pill">
+            <Lock size={12} />
+            <span>Filtro Activo</span>
+          </span>
+          {latency && (
+            <span className="meta-pill latency-pill">
+              {latency} ms
+            </span>
+          )}
         </div>
       </div>
 
+      {/* Cuerpo del Mensaje */}
+      <div className="guardrail-body">
+        <p className="guardrail-message-text">{notice.message}</p>
+
+        {notice.suggestion && (
+          <motion.div
+            className="guardrail-channel-box"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="guardrail-channel-title">
+              <Info size={16} />
+              <span>Canal Oficial Recomendado para esta solicitud:</span>
+            </div>
+            <p className="guardrail-channel-desc">{notice.suggestion}</p>
+          </motion.div>
+        )}
+      </div>
+
       {/* Nota al Pie Informativa */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          fontSize: "0.78rem",
-          color: "var(--text-muted)",
-          paddingTop: "0.75rem",
-          borderTop: "1px solid #f1f5f9",
-        }}
-      >
-        <span>
-          💡 <em>Este navegador corporativo está habilitado para todos los empleados para consultar normativas, viáticos, permisos y contratos sin vulnerar la privacidad de cuentas ni salarios individuales.</em>
+      <div className="guardrail-footer">
+        <span className="guardrail-footer-text">
+          💡 <strong>Aviso de Gobernanza:</strong> Este navegador corporativo está habilitado para todos los empleados para consultar normativas, viáticos, permisos y contratos sin vulnerar la confidencialidad de salarios individuales ni cuentas bancarias.
         </span>
       </div>
-    </div>
+    </motion.div>
   );
 }
