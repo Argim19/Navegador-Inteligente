@@ -1,10 +1,25 @@
 import React, { useState } from "react";
-import { Settings, X, RefreshCw, Upload, FileText, CheckCircle, Clock } from "lucide-react";
+import {
+  Settings,
+  X,
+  RefreshCw,
+  Upload,
+  FileText,
+  CheckCircle,
+  Clock,
+  Lock,
+  LogIn,
+  LogOut,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  ShieldCheck,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { reindexAllDocuments, uploadDocument } from "../api/client";
 
 /**
- * Modal de Administración y Control Documental con animaciones suaves de entrada y salida.
+ * Modal de Administración y Control Documental con autenticación previa de administrador.
  */
 export default function AdminModal({
   isOpen,
@@ -13,11 +28,43 @@ export default function AdminModal({
   documentsList = [],
   onRefresh,
 }) {
+  // Estado de Autenticación de Administrador
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
+  // Estado de Operaciones Administrativas
   const [adminLoading, setAdminLoading] = useState(false);
   const [adminFeedback, setAdminFeedback] = useState(null);
   const [uploadFile, setUploadFile] = useState(null);
   const [uploadScope, setUploadScope] = useState("General");
   const [uploadVersion, setUploadVersion] = useState("1.0");
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (username.trim() === "admin" && password === "admin") {
+      setIsAuthenticated(true);
+      setLoginError("");
+      setPassword("");
+    } else {
+      setLoginError("Usuario o contraseña incorrectos. Verifique sus credenciales.");
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUsername("");
+    setPassword("");
+    setLoginError("");
+    setAdminFeedback(null);
+  };
+
+  const handleClose = () => {
+    setLoginError("");
+    onClose();
+  };
 
   const handleReindex = async () => {
     setAdminLoading(true);
@@ -73,45 +120,188 @@ export default function AdminModal({
       {isOpen && (
         <motion.div
           className="modal-overlay"
-          onClick={onClose}
+          onClick={handleClose}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <motion.div
-            className="modal-content admin-modal-content"
-            onClick={(e) => e.stopPropagation()}
-            initial={{ opacity: 0, scale: 0.94, y: 18 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.94, y: 18 }}
-            transition={{ type: "spring", stiffness: 400, damping: 28 }}
-          >
-            {/* Header del Modal */}
-            <div className="modal-header">
-              <div className="modal-title">
-                <div className="modal-title-icon-box">
-                  <Settings size={20} />
+          {/* VISTA 1: INICIO DE SESIÓN DE ADMINISTRADOR (Si no está autenticado) */}
+          {!isAuthenticated ? (
+            <motion.div
+              key="admin-login-view"
+              className="modal-content login-modal-content"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.94, y: 18 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 18 }}
+              transition={{ type: "spring", stiffness: 400, damping: 28 }}
+            >
+              {/* Header del Login */}
+              <div className="modal-header">
+                <div className="modal-title">
+                  <div className="modal-title-icon-box">
+                    <Lock size={20} />
+                  </div>
+                  <div>
+                    <h3>Acceso a Gestión Documental</h3>
+                    <p className="modal-title-sub">Autenticación requerida para administradores</p>
+                  </div>
                 </div>
-                <div>
-                  <h3>Panel de Administración Documental</h3>
-                  <p className="modal-title-sub">Gestión del corpus normativo, ingestión y versionamiento</p>
+                <motion.button
+                  className="btn-close-icon"
+                  onClick={handleClose}
+                  aria-label="Cerrar modal"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <X size={18} />
+                </motion.button>
+              </div>
+
+              {/* Cuerpo del Login */}
+              <div className="modal-body">
+                <div className="login-auth-info">
+                  <ShieldCheck size={18} className="login-auth-info-icon" />
+                  <span>
+                    El módulo de Gestión Documental está restringido al área administrativa. Solo usuarios autorizados pueden cargar y versionar documentos normativos.
+                  </span>
+                </div>
+
+                <AnimatePresence>
+                  {loginError && (
+                    <motion.div
+                      className="alert-banner alert-banner-error"
+                      initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <AlertCircle size={16} className="alert-icon" />
+                      <span>{loginError}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <form onSubmit={handleLogin} className="api-key-form">
+                  <div className="form-group">
+                    <label className="form-label">Usuario:</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Ingrese usuario (admin)"
+                      value={username}
+                      onChange={(e) => {
+                        setUsername(e.target.value);
+                        setLoginError("");
+                      }}
+                      autoFocus
+                      required
+                      autoComplete="username"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Contraseña:</label>
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        className="form-input password-input"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          setLoginError("");
+                        }}
+                        required
+                        autoComplete="current-password"
+                      />
+                      <motion.button
+                        type="button"
+                        className="password-toggle-btn"
+                        onClick={() => setShowPassword(!showPassword)}
+                        title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                        aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                        whileHover={{ scale: 1.15 }}
+                        whileTap={{ scale: 0.85 }}
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  <div className="modal-actions-right">
+                    <motion.button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={handleClose}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      Cancelar
+                    </motion.button>
+                    <motion.button
+                      type="submit"
+                      className="btn btn-primary"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      <LogIn size={15} />
+                      <span>Iniciar Sesión</span>
+                    </motion.button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          ) : (
+            /* VISTA 2: PANEL DE ADMINISTRACIÓN DOCUMENTAL (Si ya está autenticado) */
+            <motion.div
+              key="admin-panel-view"
+              className="modal-content admin-modal-content"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.94, y: 18 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 18 }}
+              transition={{ type: "spring", stiffness: 400, damping: 28 }}
+            >
+              {/* Header del Modal */}
+              <div className="modal-header">
+                <div className="modal-title">
+                  <div className="modal-title-icon-box">
+                    <Settings size={20} />
+                  </div>
+                  <div>
+                    <h3>Panel de Administración Documental</h3>
+                    <p className="modal-title-sub">Gestión del corpus normativo, ingestión y versionamiento</p>
+                  </div>
+                </div>
+                <div className="header-right-actions">
+                  <motion.button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={handleLogout}
+                    title="Cerrar sesión de administrador"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                  >
+                    <LogOut size={13} />
+                    <span>Cerrar Sesión</span>
+                  </motion.button>
+                  <motion.button
+                    className="btn-close-icon"
+                    onClick={handleClose}
+                    aria-label="Cerrar modal"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <X size={18} />
+                  </motion.button>
                 </div>
               </div>
-              <motion.button
-                className="btn-close-icon"
-                onClick={onClose}
-                aria-label="Cerrar modal"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <X size={18} />
-              </motion.button>
-            </div>
 
-            <div className="modal-body">
-              {/* Tarjetas de Estadísticas */}
-              <div className="stats-grid">
+              <div className="modal-body">
+                {/* Tarjetas de Estadísticas */}
+                <div className="stats-grid">
                 <div className="stat-box">
                   <div className="stat-number">{configStatus.total_documents || documentsList.length || 0}</div>
                   <div className="stat-title">Documentos Registrados</div>
@@ -287,7 +477,7 @@ export default function AdminModal({
               <motion.button
                 type="button"
                 className="btn btn-secondary"
-                onClick={onClose}
+                onClick={handleClose}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
               >
@@ -295,6 +485,7 @@ export default function AdminModal({
               </motion.button>
             </div>
           </motion.div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>

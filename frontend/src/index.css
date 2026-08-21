@@ -1451,6 +1451,35 @@ body {
   max-width: 560px;
 }
 
+.login-modal-content {
+  max-width: 480px;
+}
+
+.login-auth-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.login-auth-info-icon {
+  color: var(--brand-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.header-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .modal-header {
   padding: 1.25rem 1.65rem;
   border-bottom: 1px solid var(--border-color);
